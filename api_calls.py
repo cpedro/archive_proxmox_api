@@ -64,8 +64,8 @@ from signal import signal, SIGINT
 
 
 def list_datastores(host, username, password, show_raw):
-    datastores = api.get_datastores(host, user=username, password=password,
-                                    verify_ssl=False)
+    datastores = api.get_datastores(
+        host, user=username, password=password, verify_ssl=False)
     if show_raw:
         print(json.dumps(datastores))
         return
@@ -78,13 +78,14 @@ def list_datastores(host, username, password, show_raw):
     used: {:.1%}"""
 
     for ds in datastores:
-        print(output.format(ds['storage'], ds['type'], ds['content'],
-                            ds['shared'], ds['total'], ds['used_fraction']))
+        print(output.format(
+            ds['storage'], ds['type'], ds['content'], ds['shared'],
+            ds['total'], ds['used_fraction']))
 
 
 def list_nodes(host, username, password, show_raw):
-    nodes = api.get_nodes(host, user=username, password=password,
-                          verify_ssl=False)
+    nodes = api.get_nodes(
+        host, user=username, password=password, verify_ssl=False)
 
     if show_raw:
         print(json.dumps(nodes))
@@ -96,12 +97,14 @@ def list_nodes(host, username, password, show_raw):
     memory: {:.1%}"""
 
     for node in nodes:
-        print(output.format(node['node'], node['status'], node['cpu'],
-              node['mem'] / node['maxmem']))
+        print(output.format(
+            node['node'], node['status'], node['cpu'],
+            node['mem'] / node['maxmem']))
 
 
 def list_vms(host, username, password, show_raw):
-    vms = api.get_vms(host, user=username, password=password, verify_ssl=False)
+    vms = api.get_vms(
+        host, user=username, password=password, verify_ssl=False)
 
     if show_raw:
         print(json.dumps(vms))
@@ -117,8 +120,8 @@ def list_vms(host, username, password, show_raw):
             size: {}"""
 
     for vm in vms:
-        print(vmout.format(vm['vmid'], vm['name'], vm['status'], vm['cpus'],
-                           vm['maxmem']))
+        print(vmout.format(
+            vm['vmid'], vm['name'], vm['status'], vm['cpus'], vm['maxmem']))
         for disk in vm['disks']:
             print(diskout.format(disk['volid'], disk['size']))
 
@@ -126,21 +129,27 @@ def list_vms(host, username, password, show_raw):
 def parse_args(args):
     """Parse command line arguments.
     """
-    parser = argparse.ArgumentParser(description='Proxmox API Test Program')
-    parser.add_argument('-H', '--host', required=True, help='Proxmox Host to '
-                        'connect to.')
-    parser.add_argument('-u', '--username', required=True, help='Username to '
-                        'use to authenticate.')
-    parser.add_argument('-p', '--password', default='', help='Password, '
-                        'leave blank to be prompted to enter your password')
-    parser.add_argument('-r', '--show-raw', action='store_true', help='Show '
-                        'raw output as JSON instead of formatted output.')
-    parser.add_argument('-v', '--list-vms', action='store_true', help='List '
-                        'all virtual machines and their disks.')
-    parser.add_argument('-n', '--list-nodes', action='store_true', help='List '
-                        'all nodes.')
-    parser.add_argument('-d', '--list-datastores', action='store_true',
-                        help='List all shared datastores.')
+    parser = argparse.ArgumentParser(
+        description='Proxmox API Test Program')
+    parser.add_argument(
+        '-H', '--host', required=True, help='Proxmox Host to connect to.')
+    parser.add_argument(
+        '-u', '--username', required=True,
+        help='Username to use to authenticate.')
+    parser.add_argument(
+        '-p', '--password', default='',
+        help='Password, leave blank to be prompted to enter your password')
+    parser.add_argument(
+        '-r', '--show-raw', action='store_true',
+        help='Show raw output as JSON instead of formatted output.')
+    parser.add_argument(
+        '-v', '--list-vms', action='store_true',
+        help='List all virtual machines and their disks.')
+    parser.add_argument(
+        '-n', '--list-nodes', action='store_true', help='List all nodes.')
+    parser.add_argument(
+        '-d', '--list-datastores', action='store_true',
+        help='List all datastores.')
     return parser.parse_args(args)
 
 
