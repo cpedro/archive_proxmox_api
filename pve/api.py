@@ -38,7 +38,48 @@ For more information, please refer to <http://unlicense.org>
 from proxmoxer import ProxmoxAPI
 
 
-def getvms_slow(host, *args, **kwargs):
+def dedup(dict, id):
+    """Quick and dirty function to dedup the lists of dictionaries based on an
+    id to determine whether or not an item has been 'seen'
+    """
+    seen = set()
+    dedup = []
+
+    for d in dict:
+        if d[id] not in seen:
+            seen.add(d[id])
+            dedup.append(d)
+
+    return dedup
+
+
+def create_vm(host, *args, **kwargs):
+    """Creates and sets up a VM on the PVE cluster.
+    """
+    return
+
+
+def get_nodes(host, *args, **kwargs):
+    """Get and returns a list of all nodes on the PVE cluster.
+    """
+    pve = ProxmoxAPI(host, *args, **kwargs)
+    nodes = pve.nodes.get()
+    return nodes
+
+
+def get_datastores(host, *args, **kwargs):
+    """Get and returns a list of all datastores active on the PVE cluster.
+    """
+    pve = ProxmoxAPI(host, *args, **kwargs)
+    datastores = []
+
+    for node in pve.nodes.get():
+        datastores.extend(pve.nodes(node['node']).get('storage'))
+
+    return dedup(datastores, 'storage')
+
+
+def get_vms_slow(host, *args, **kwargs):
     """Get and returns a list of all VMs on the PVE cluster, including disks.
     This is for history only.  It's slow as hell.  About 10 times slower.
     """
@@ -55,27 +96,24 @@ def getvms_slow(host, *args, **kwargs):
                         'content', vmid=vm['vmid']))
             vm['disks'] = vmdisks
             vms.append(vm)
+
     return vms
 
 
-def getvms(host, *args, **kwargs):
+def get_vms(host, *args, **kwargs):
     """Get and returns a list of all VMs on the PVE cluster, including disks.
     """
     pve = ProxmoxAPI(host, *args, **kwargs)
     vms = []
     all_disks = []
 
-    first = True
     for node in pve.nodes.get():
         vms.extend(pve.nodes(node['node']).get('qemu'))
-        # Bit of a hack, only get the disk information if it's the first run
-        if not first:
-            continue
-        first = False
         # Loop through storage with content = images only.
         for ds in pve.nodes(node['node']).get('storage', content='images'):
             all_disks.extend(
                 pve.nodes(node['node']).storage(ds['storage']).get('content'))
+    all_disks = dedup(all_disks, 'volid')
 
     for vm in vms:
         vmdisks = []
