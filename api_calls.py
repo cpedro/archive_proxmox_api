@@ -7,6 +7,26 @@ Description: List VMs running on Proxmox VE cluster.
 Author: E. Chris Pedro
 Created: 2020-03-17
 
+
+usage: api_calls.py [-h] -H HOST -u USERNAME [-p PASSWORD] [-r] [-v] [-n] [-d]
+
+Proxmox API Test Program
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -H HOST, --host HOST  Proxmox Host to connect to.
+  -u USERNAME, --username USERNAME
+                        Username to use to authenticate.
+  -p PASSWORD, --password PASSWORD
+                        Password, leave blank to be prompted to enter your
+                        password
+  -r, --show-raw        Show raw output as JSON instead of formatted output.
+  -v, --list-vms        List all virtual machines and their disks.
+  -n, --list-nodes      List all nodes.
+  -d, --list-datastores
+                        List all shared datastores.
+
+
 This is free and unencumbered software released into the public domain.
 
 Anyone is free to copy, modify, publish, use, compile, sell, or
