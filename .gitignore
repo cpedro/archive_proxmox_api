@@ -2,6 +2,9 @@
 *.sublime-project
 *.sublime-workspace
 
+# Local test files
+test_*.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

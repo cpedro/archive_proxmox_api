@@ -53,9 +53,11 @@ def dedup(dict, id):
     return dedup
 
 
-def create_vm(host, *args, **kwargs):
+def create_vm(host, node, vm, *args, **kwargs):
     """Creates and sets up a VM on the PVE cluster.
     """
+    pve = ProxmoxAPI(host, *args, **kwargs)
+    pve.nodes(node).qemu.create(**vm)
     return
 
 
@@ -81,7 +83,8 @@ def get_storage(host, *args, **kwargs):
 
 def get_vms_slow(host, *args, **kwargs):
     """Get and returns a list of all VMs on the PVE cluster, including disks.
-    This is for history only.  It's slow as hell.  About 10 times slower.
+    DON'T USE!  This is for reference only.  It's slow as hell.  About 10 times
+    slower.
     """
     pve = ProxmoxAPI(host, *args, **kwargs)
     vms = []

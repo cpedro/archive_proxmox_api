@@ -3,6 +3,13 @@
 Collection of Python programs and libraries to admin Proxmox VE via web API.
 Uses [proxmoxer](https://pypi.org/project/proxmoxer/).
 
+## Requirements
+To make sure you have all requirements:
+
+```bash
+$ pip3 install -r requirements.txt
+```
+
 ## api_calls.py
 Main script that can be used to call the underlying functions defined in pve.
 

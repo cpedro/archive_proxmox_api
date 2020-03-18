@@ -65,6 +65,7 @@ from signal import signal, SIGINT
 def list_storage(host, username, password, show_raw):
     storage = api.get_storage(
         host, user=username, password=password, verify_ssl=False)
+
     if show_raw:
         print(json.dumps(storage))
         return
