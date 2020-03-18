@@ -62,6 +62,29 @@ from pve import api
 from signal import signal, SIGINT
 
 
+def list_ha_groups(host, username, password, show_raw):
+    groups = api.get_ha_groups(
+        host, user=username, password=password, verify_ssl=False)
+
+    if show_raw:
+        print(json.dumps(groups))
+        return
+
+    g_out = """{}:
+    comment: {}
+    nodes: {}
+    resources:"""
+    r_out = """        {}:
+            type: {}
+            state: {}"""
+
+    for group in groups:
+        print(g_out.format(
+            group['group'], group['comment'], group['nodes']))
+        for res in group['resources']:
+            print(r_out.format(res['sid'], res['type'], res['state']))
+
+
 def list_storage(host, username, password, show_raw):
     storage = api.get_storage(
         host, user=username, password=password, verify_ssl=False)
@@ -91,15 +114,22 @@ def list_nodes(host, username, password, show_raw):
         print(json.dumps(nodes))
         return
 
-    output = """{}:
+    n_out = """{}:
     status: {}
     cpu: {:.1%}
     memory: {:.1%}"""
+    net_out = """        {}:
+            comments: {}"""
+    ip_out = """            ip: {}"""
 
     for node in nodes:
-        print(output.format(
+        print(n_out.format(
             node['node'], node['status'], node['cpu'],
             node['mem'] / node['maxmem']))
+        for net in node['network']:
+            print(net_out.format(net['iface'], net['comments'].rstrip()))
+            if 'cidr' in net:
+                print(ip_out.format(net['cidr']))
 
 
 def list_vms(host, username, password, show_raw):
@@ -110,20 +140,20 @@ def list_vms(host, username, password, show_raw):
         print(json.dumps(vms))
         return
 
-    vmout = """{}:
+    v_out = """{}:
     name: {}
     status: {}
     cpu: {}
     memory: {}
     disks:"""
-    diskout = """        {}:
+    d_out = """        {}:
             size: {}"""
 
     for vm in vms:
-        print(vmout.format(
+        print(v_out.format(
             vm['vmid'], vm['name'], vm['status'], vm['cpus'], vm['maxmem']))
         for disk in vm['disks']:
-            print(diskout.format(disk['volid'], disk['size']))
+            print(d_out.format(disk['volid'], disk['size']))
 
 
 def parse_args(args):
@@ -149,6 +179,8 @@ def parse_args(args):
         '-n', '--list-nodes', action='store_true', help='List all nodes.')
     parser.add_argument(
         '-s', '--list-storage', action='store_true', help='List all storage.')
+    parser.add_argument(
+        '-g', '--list-ha-groups', action='store_true', help='List HA groups.')
     return parser.parse_args(args)
 
 
@@ -178,6 +210,8 @@ def main(args):
         list_nodes(args.host, args.username, password, args.show_raw)
     if args.list_storage:
         list_storage(args.host, args.username, password, args.show_raw)
+    if args.list_ha_groups:
+        list_ha_groups(args.host, args.username, password, args.show_raw)
 
 
 if __name__ == '__main__':

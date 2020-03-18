@@ -61,11 +61,35 @@ def create_vm(host, node, vm, *args, **kwargs):
     return
 
 
+def get_ha_groups(host, *args, **kwargs):
+    """Get and returns all HA groups on the PVE cluster, along with resources.
+    """
+    pve = ProxmoxAPI(host, *args, **kwargs)
+    groups = pve.cluster.ha.groups.get()
+    resources = pve.cluster.ha.resources.get()
+
+    for group in groups:
+        group_resources = []
+        for resource in resources:
+            if resource['group'] == group['group']:
+                group_resources.append(resource)
+        group['resources'] = group_resources
+
+    return groups
+
+
 def get_nodes(host, *args, **kwargs):
     """Get and returns a list of all nodes on the PVE cluster.
     """
     pve = ProxmoxAPI(host, *args, **kwargs)
     nodes = pve.nodes.get()
+    # Add to this list to get more info on node.
+    properties = ['network', 'services']
+
+    for node in nodes:
+        for p in properties:
+            node[p] = pve.nodes(node['node']).get(p)
+
     return nodes
 
 
@@ -74,11 +98,22 @@ def get_storage(host, *args, **kwargs):
     """
     pve = ProxmoxAPI(host, *args, **kwargs)
     storage = []
+    seen = set()
 
     for node in pve.nodes.get():
-        storage.extend(pve.nodes(node['node']).get('storage'))
+        for ds in pve.nodes(node['node']).get('storage'):
+            if ds['shared'] != 1:
+                ds['node'] = node['node']
+            elif ds['storage'] in seen:
+                continue
+            else:
+                seen.add(ds['storage'])
 
-    return dedup(storage, 'storage')
+            ds['contents'] = pve.nodes(
+                node['node']).storage(ds['storage']).get('content')
+            storage.append(ds)
+
+    return storage
 
 
 def get_vms_slow(host, *args, **kwargs):
