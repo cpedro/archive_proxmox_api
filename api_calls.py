@@ -8,7 +8,7 @@ Author: E. Chris Pedro
 Created: 2020-03-17
 
 
-usage: api_calls.py [-h] -H HOST -u USERNAME [-p PASSWORD] [-r] [-v] [-n] [-d]
+usage: api_calls.py [-h] -H HOST -u USERNAME [-p PASSWORD] [-r] [-v] [-n] [-s]
 
 Proxmox API Test Program
 
@@ -23,8 +23,7 @@ optional arguments:
   -r, --show-raw        Show raw output as JSON instead of formatted output.
   -v, --list-vms        List all virtual machines and their disks.
   -n, --list-nodes      List all nodes.
-  -d, --list-datastores
-                        List all shared datastores.
+  -s, --list-storage    List all storage.
 
 
 This is free and unencumbered software released into the public domain.
@@ -63,11 +62,11 @@ from pve import api
 from signal import signal, SIGINT
 
 
-def list_datastores(host, username, password, show_raw):
-    datastores = api.get_datastores(
+def list_storage(host, username, password, show_raw):
+    storage = api.get_storage(
         host, user=username, password=password, verify_ssl=False)
     if show_raw:
-        print(json.dumps(datastores))
+        print(json.dumps(storage))
         return
 
     output = """{}:
@@ -77,7 +76,7 @@ def list_datastores(host, username, password, show_raw):
     size: {}
     used: {:.1%}"""
 
-    for ds in datastores:
+    for ds in storage:
         print(output.format(
             ds['storage'], ds['type'], ds['content'], ds['shared'],
             ds['total'], ds['used_fraction']))
@@ -148,8 +147,7 @@ def parse_args(args):
     parser.add_argument(
         '-n', '--list-nodes', action='store_true', help='List all nodes.')
     parser.add_argument(
-        '-d', '--list-datastores', action='store_true',
-        help='List all datastores.')
+        '-s', '--list-storage', action='store_true', help='List all storage.')
     return parser.parse_args(args)
 
 
@@ -177,8 +175,8 @@ def main(args):
         list_vms(args.host, args.username, password, args.show_raw)
     if args.list_nodes:
         list_nodes(args.host, args.username, password, args.show_raw)
-    if args.list_datastores:
-        list_datastores(args.host, args.username, password, args.show_raw)
+    if args.list_storage:
+        list_storage(args.host, args.username, password, args.show_raw)
 
 
 if __name__ == '__main__':

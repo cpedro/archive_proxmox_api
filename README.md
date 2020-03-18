@@ -7,7 +7,7 @@ Uses [proxmoxer](https://pypi.org/project/proxmoxer/).
 Main script that can be used to call the underlying functions defined in pve.
 
 ```
-usage: api_calls.py [-h] -H HOST -u USERNAME [-p PASSWORD] [-r] [-v] [-n] [-d]
+usage: api_calls.py [-h] -H HOST -u USERNAME [-p PASSWORD] [-r] [-v] [-n] [-s]
 
 Proxmox API Test Program
 
@@ -22,13 +22,12 @@ optional arguments:
   -r, --show-raw        Show raw output as JSON instead of formatted output.
   -v, --list-vms        List all virtual machines and their disks.
   -n, --list-nodes      List all nodes.
-  -d, --list-datastores
-                        List all shared datastores.
+  -s, --list-storage    List all storage.
 ```
 
 When using the `-r`, you can pipe through `jq` for 'cleaner' output.
 ```bash
-$ ./api_calls.py -H pvehost -u cpedro@pve -p PASS -d -r | jq
+$ ./api_calls.py -H HOST -u USER -p PASS -s -r | jq
 [
   {
     "total": 35401613312,

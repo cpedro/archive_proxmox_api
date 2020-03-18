@@ -67,16 +67,16 @@ def get_nodes(host, *args, **kwargs):
     return nodes
 
 
-def get_datastores(host, *args, **kwargs):
-    """Get and returns a list of all datastores active on the PVE cluster.
+def get_storage(host, *args, **kwargs):
+    """Get and returns a list of all storage active on the PVE cluster.
     """
     pve = ProxmoxAPI(host, *args, **kwargs)
-    datastores = []
+    storage = []
 
     for node in pve.nodes.get():
-        datastores.extend(pve.nodes(node['node']).get('storage'))
+        storage.extend(pve.nodes(node['node']).get('storage'))
 
-    return dedup(datastores, 'storage')
+    return dedup(storage, 'storage')
 
 
 def get_vms_slow(host, *args, **kwargs):
@@ -87,10 +87,10 @@ def get_vms_slow(host, *args, **kwargs):
     vms = []
 
     for node in pve.nodes.get():
-        datastores = pve.nodes(node['node']).get('storage', content='images')
+        storage = pve.nodes(node['node']).get('storage', content='images')
         for vm in pve.nodes(node['node']).get('qemu'):
             vmdisks = []
-            for ds in datastores:
+            for ds in storage:
                 vmdisks.extend(
                     pve.nodes(node['node']).storage(ds['storage']).get(
                         'content', vmid=vm['vmid']))
